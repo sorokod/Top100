@@ -1,15 +1,14 @@
 package org.xor.top100
 
 import java.nio.LongBuffer
-import java.util.*
 
 
-class Box(var value: Long, val ref: LongBuffer) : Comparable<Long> {
+private class Box(var value: Long, val buffer: LongBuffer) : Comparable<Long> {
     override fun compareTo(other: Long): Int = value.compareTo(other)
-    override fun toString(): String = "[Box value=$value | ref=$ref]"
+    override fun toString(): String = "[Box value=$value | ref=$buffer]"
 }
 
-class AlwaysSorted(private val buffers: List<LongBuffer>) : Iterator<Long> {
+class AlwaysSorted(private val buffers: Array<LongBuffer>) : Iterator<Long> {
 
     private val sortedData: MutableList<Box> = List(buffers.size) { i -> Box(buffers[i].get(), buffers[i]) }
         .sortedBy { it.value }
@@ -17,22 +16,23 @@ class AlwaysSorted(private val buffers: List<LongBuffer>) : Iterator<Long> {
 
     override fun hasNext() = sortedData.isNotEmpty()
 
-    override fun next(): Long {
-        val resultBox = sortedData.removeAt(0)
-        val resultValue = resultBox.value
-        refresh(resultBox)
-        return resultValue
+    override fun next(): Long = sortedData.first().value.apply { refresh() }
+
+    private fun refresh() {
+        val box = sortedData.removeAt(0)
+
+        if (box.buffer.hasRemaining()) {
+            box.value = box.buffer.get()
+            insertIndex(box.value).also { sortedData.add(it, box) }
+        }
     }
 
-    private fun refresh(box: Box) {
-        if (box.ref.hasRemaining()) {
-            box.value = box.ref.get()
-            val idx = sortedData.binarySearch { it.compareTo(box.value) }
-            if (idx < 0) {
-                sortedData.add(-idx - 1, box)
-            } else {
-                sortedData.add(idx, box)
-            }
+    private inline fun insertIndex(value: Long): Int {
+        val idx = sortedData.binarySearch { it.compareTo(value) }
+        return if (idx < 0) {
+            -idx - 1
+        } else {
+            idx
         }
     }
 }

@@ -6,29 +6,17 @@ import java.nio.channels.FileChannel
 import kotlin.time.measureTime
 
 
-//fun splitSortMerge(file: String, bufferCapacity: LongCount) {
-//
-//    measureTime {
-//        val inChannel = file2channel(file)
-//
-//        sort(inChannel, bufferCapacity)
-//
-//        val buffers = createBuffers(inChannel, bufferCapacity)
-////        log("[splitSortMerge] created ${buffers.size} buffers")
-////
-////        buffers.forEachIndexed { i, buffer ->
-////            measureTime { sortBuffer(buffer) }.also { duration -> log("[splitSortMerge] sorted $i in: $duration") }
-////        }
-////        log("[splitSortMerge] sorted ${buffers.size} buffers")
-//
-////        mergeBuffers(buffers, inChannel.size(), file2channel("${file}_OUT"))
-//
-//
-////        mergeBuffers(buffers, inChannel.size(), file2Dos("${file}_OUT"))
-//
-//        mergeBuffers(buffers, file2Dos("${file}_OUT"))
-//    }.also { duration -> log("[splitSortMerge] DONE in: $duration") }
-//}
+fun splitSortMerge(file: String, bufferCapacity: LongCount) {
+    measureTime {
+        val inChannel = file2channel(file)
+
+        sortChunks(inChannel, bufferCapacity)
+
+        val buffers = createBuffers(inChannel, bufferCapacity)
+
+        mergeBuffers(buffers, file2Dos("${file}_OUT"))
+    }.also { duration -> log("[splitSortMerge] DONE in: $duration") }
+}
 
 
 fun mergeBuffers(buffers: Array<LongBuffer>, dos: DataOutputStream) {
@@ -36,10 +24,9 @@ fun mergeBuffers(buffers: Array<LongBuffer>, dos: DataOutputStream) {
         var consumedSoFar: LongCount = 0
         var mark = System.currentTimeMillis()
 
-        val bufferList = buffers.toList()
-        val almso = AlwaysSorted(bufferList)
+        val almso = AlwaysSorted(buffers)
 
-        log("[mergeBuffers] starting with  ${bufferList.size} buffers")
+        log("[mergeBuffers] starting with  ${buffers.size} buffers")
 
         almso.forEach { value ->
             dos.writeLong(value)

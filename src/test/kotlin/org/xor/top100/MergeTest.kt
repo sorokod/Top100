@@ -1,6 +1,7 @@
 package org.xor.top100
 
 import org.junit.Assert
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -52,17 +53,17 @@ internal class MergeTest {
         Assert.assertTrue(mmIsSorted(outFile))
     }
 
-//
-//    @ParameterizedTest(name = "should be sorted after splitSortMerge({0}, {1}, {2})")
-//    @MethodSource("largeData")
-//    fun `should be sorted after splitSortMerge`(valueRange: Long, count: Long, bufferCapacity: LongCount) {
-//        val dataFile = DataGenerator.random(valueRange, count, dataFileDir).absolutePath
-//
-//        splitSortMerge(dataFile, bufferCapacity)
-//
-//        val list = mmToList("${dataFile}_OUT")
-//        junit.framework.Assert.assertEquals("Unexpected output size", count, list.size.toLong())
-//        Assert.assertTrue(mmIsSorted("${dataFile}_OUT"))
-//    }
+
+    @ParameterizedTest(name = "should be sorted after splitSortMerge({0}, {1}, {2})")
+    @MethodSource("chunkData")
+    fun `should be sorted after splitSortMerge`(count: Long, bufferCapacity: LongCount) {
+        val dataFile = DataGenerator.random(1000, count, DATA_DIR).absolutePath
+
+        splitSortMerge(dataFile, bufferCapacity)
+
+        val list = mmToList("${dataFile}_OUT")
+        assertEquals(count, list.size.toLong() , "Unexpected output size")
+        Assert.assertTrue(mmIsSorted("${dataFile}_OUT"))
+    }
 
 }
