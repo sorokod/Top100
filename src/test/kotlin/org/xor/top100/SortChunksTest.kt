@@ -6,7 +6,6 @@ import java.util.concurrent.ForkJoinPool
 
 class SortChunksTest {
 
-
     companion object {
         @JvmStatic
         fun chunkData() = arrayOf(
@@ -20,9 +19,8 @@ class SortChunksTest {
 
     @ParameterizedTest(name = "sortChunks should result in sorted chunks({0}, {1})")
     @MethodSource("chunkData")
-    fun `sortChunks should result in sorted chunks`(count: LongCount, chunkSize: LongCount) {
+    fun `sortChunks is sorting`(count: LongCount, chunkSize: LongCount) {
         val dataFile = DataGenerator.random(1_000, count, DATA_DIR).absolutePath
-
         val chan = file2channel(dataFile)
 
         sortChunks(chan, chunkSize)
@@ -30,23 +28,4 @@ class SortChunksTest {
         mmToList(dataFile).windowed(chunkSize.toInt(), chunkSize.toInt())
             .forEach { chunk -> assertSorted(chunk) }
     }
-
-    @ParameterizedTest(name = "sortChunks should result in sorted chunks({0}, {1})")
-    @MethodSource("chunkData")
-    fun `xxx`(count: LongCount, chunkSize: LongCount) {
-        val dataFile = DataGenerator.random(1_000, count, DATA_DIR).absolutePath
-        val chan = file2channel(dataFile)
-
-        sortChunks3(chan, chunkSize)
-//        val sorter = Sorter(chan, -1, chunkSize.toInt())
-//
-//        val pool = ForkJoinPool.commonPool()
-//        pool.invoke(sorter)
-//        pool.shutdown()
-
-
-        mmToList(dataFile).windowed(chunkSize.toInt(), chunkSize.toInt())
-            .forEach { chunk -> assertSorted(chunk) }
-    }
-
 }
