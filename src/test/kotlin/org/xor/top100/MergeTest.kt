@@ -54,12 +54,12 @@ internal class MergeTest {
     }
 
 
-    @ParameterizedTest(name = "should be sorted after splitSortMerge({0}, {1}, {2})")
+    @ParameterizedTest(name = "sortMerge should sort({0}, {1})")
     @MethodSource("chunkData")
     fun `should be sorted after splitSortMerge`(count: Long, bufferCapacity: LongCount) {
         val dataFile = DataGenerator.random(1000, count, DATA_DIR).absolutePath
 
-        splitSortMerge(dataFile, bufferCapacity)
+        sortMerge(dataFile, bufferCapacity)
 
         val list = mmToList("${dataFile}_OUT")
         assertEquals(count, list.size.toLong() , "Unexpected output size")

@@ -1,26 +1,37 @@
 package org.xor.top100
 
-import java.nio.ByteBuffer
-import java.nio.channels.FileChannel
 import kotlin.time.measureTime
 
 
 const val DATA_DIR = "src/.."
-const val FOUR_BILLION = 4 * 1_000 * 1_000_000L
-const val ONE_BILLION = 1 * 1_000 * 1_000_000L
 
 
+fun oneBillion() {
+    measureTime {
+        measureTime {
+            DataGenerator.random(valueRange = 1_000, count = ONE_BILLION, DATA_DIR)
+        }.also { log("[generate] DONE in: $it") } // 7.5G in 45 sec.
 
+        measureTime {
+            sortMerge("$DATA_DIR/dat_1000000000", bufferCapacity = TEN_MILLION)
+        }.also { log("[sortMerge] DONE in: $it") } // 370 sec
+
+        measureTime {
+            val topN = topN(100, "$DATA_DIR/dat_1000000000_OUT")
+            log(topN.toString())
+        }.also { log("[TopN] done. duration=$it") } // 45 sec
+
+    }.also { log("[oneBillion] done. duration=$it") } // 480 sec.
+}
+
+fun fourBillion() {
+    DataGenerator.random(valueRange = 1_000, count = FOUR_BILLION, DATA_DIR) // 30G in 170 sec.
+
+//    sortChunks(file2channel("$DATA_DIR/dat_4000000000"),  1_000_000) // 500 sec
+    sortMerge("$DATA_DIR/dat_4000000000", 10_000_000) // 30 min
+
+}
 
 fun main() {
-//    DataGenerator.random(valueRange = 1_000, count = ONE_BILLION, DATA_DIR) // 7.5G in 38 sec.
-//    DataGenerator.random(valueRange = 1_000, count = FOUR_BILLION, DATA_DIR) // 30G in 170 sec.
-
-//    sortChunks(file2channel("$DATA_DIR/dat_1000000000"),  1_000_000) // 35 sec
-//    sortChunks(file2channel("$DATA_DIR/dat_4000000000"),  1_000_000) // 490 sec
-
-//    splitSortMerge("$DATA_DIR/dat_1000000000", 10_000_000) // 250 sec
-    splitSortMerge("$DATA_DIR/dat_4000000000", 10_000_000) // 28 min
-
-
+    oneBillion()
 }

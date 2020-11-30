@@ -2,7 +2,7 @@ package org.xor.top100
 
 import java.nio.channels.FileChannel
 import java.nio.channels.FileChannel.MapMode.READ_WRITE
-import kotlin.time.measureTime
+import java.util.concurrent.TimeUnit.SECONDS
 
 
 /**
@@ -14,16 +14,16 @@ fun sortChunks(chan: FileChannel, chunkSize: LongCount) {
     val chunkCount: Int = (elementCount / chunkSize).toInt()
 
     val sortingArray = LongArray(chunkSize.toInt()) { 0L }
+    val tLogger = TimingLogger(step = 10, SECONDS, "[sort] sorted %d chunks of $chunkCount . Step in: %d sec.")
 
-    measureTime {
-        for (i in 0 until chunkCount) {
-            val buffer = chan.map(READ_WRITE, i * bufferSize, bufferSize).asLongBuffer()
-            buffer.get(sortingArray)
-            sortingArray.sort()
-            buffer.rewind()
-            buffer.put(sortingArray)
-            log("[sort] : $i")
-        }
-    }.also { duration -> log("[sortChunks] done. elementCount=$elementCount | chunkCount=$chunkCount | duration=$duration") }
+    for (i in 0 until chunkCount) {
+        val buffer = chan.map(READ_WRITE, i * bufferSize, bufferSize).asLongBuffer()
+        buffer.get(sortingArray)
+        sortingArray.sort()
+        buffer.rewind()
+        buffer.put(sortingArray)
+
+        tLogger.tick()
+    }
 }
 

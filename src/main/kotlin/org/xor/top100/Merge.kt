@@ -3,39 +3,30 @@ package org.xor.top100
 import java.io.DataOutputStream
 import java.nio.LongBuffer
 import java.nio.channels.FileChannel
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.MILLISECONDS
+import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.time.measureTime
 
 
-fun splitSortMerge(file: String, bufferCapacity: LongCount) {
-    measureTime {
-        val inChannel = file2channel(file)
+fun sortMerge(file: String, bufferCapacity: LongCount) {
+    val inChannel = file2channel(file)
 
-        sortChunks(inChannel, bufferCapacity)
+    sortChunks(inChannel, bufferCapacity)
 
-        val buffers = createBuffers(inChannel, bufferCapacity)
-
-        mergeBuffers(buffers, file2Dos("${file}_OUT"))
-    }.also { duration -> log("[splitSortMerge] DONE in: $duration") }
+    val buffers = createBuffers(inChannel, bufferCapacity)
+    mergeBuffers(buffers, file2Dos("${file}_OUT"))
 }
 
 
 fun mergeBuffers(buffers: Array<LongBuffer>, dos: DataOutputStream) {
     dos.use { dos ->
-        var consumedSoFar: LongCount = 0
-        var mark = System.currentTimeMillis()
+        val tLogger =
+            TimingLogger(step = 1_000_000, MILLISECONDS, "[mergeBuffers] merged %d mil. Step in: %d msc.", 1_000_000)
 
-        val almso = AlwaysSorted(buffers)
-
-        log("[mergeBuffers] starting with  ${buffers.size} buffers")
-
-        almso.forEach { value ->
+        AlwaysSorted(buffers).forEach { value ->
             dos.writeLong(value)
-
-            consumedSoFar++
-            if ((consumedSoFar % 1_000_000) == 0L) {
-                log("[mergeBuffers] completed ${consumedSoFar / 1_000_000} in ${System.currentTimeMillis() - mark}")
-                mark = System.currentTimeMillis()
-            }
+            tLogger.tick()
         }
     }
 }
