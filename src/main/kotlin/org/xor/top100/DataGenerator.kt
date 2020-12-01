@@ -21,7 +21,7 @@ object DataGenerator {
         val dos: DataOutputStream = file2Dos(datFile)
 
         val tLogger = TimingLogger(
-            step = TEN_MILLION, MILLISECONDS, "[generate] %d. of $count Step in: %d msc.", ONE_MILLION
+            step = TEN_MILLION, MILLISECONDS, "[generate] %d mil. Step in: %d msc.", ONE_MILLION
         )
 
         dos.use { dos ->

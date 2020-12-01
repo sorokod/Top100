@@ -22,7 +22,7 @@ fun sortMerge(file: String, bufferCapacity: LongCount) {
 fun mergeBuffers(buffers: Array<LongBuffer>, dos: DataOutputStream) {
     dos.use { dos ->
         val tLogger =
-            TimingLogger(step = 1_000_000, MILLISECONDS, "[mergeBuffers] merged %d mil. Step in: %d msc.", 1_000_000)
+            TimingLogger(step = 10_000_000, MILLISECONDS, "[mergeBuffers] merged %d mil. Step in: %d msc.", 1_000_000)
 
         AlwaysSorted(buffers).forEach { value ->
             dos.writeLong(value)

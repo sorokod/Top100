@@ -4,6 +4,7 @@ import java.io.*
 import java.nio.channels.FileChannel
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.NANOSECONDS
+import kotlin.time.measureTime
 
 typealias ByteCount = Long
 typealias LongCount = Long
@@ -13,7 +14,6 @@ const val ONE_MILLION = 1_000_000L
 const val TEN_MILLION = 10 * ONE_MILLION
 const val ONE_BILLION = 1 * 1_000 * ONE_MILLION
 const val FOUR_BILLION = 4 * 1_000 * ONE_MILLION
-
 
 
 inline fun log(msg: String) = println(msg)
@@ -29,6 +29,9 @@ fun file2Dos(filePath: File) =
 
 fun file2Dis(filePath: String) =
     DataInputStream(BufferedInputStream(FileInputStream(filePath), 1024 * 1024))
+
+fun recordTiming(prefix: String, block: () -> Unit) =
+    measureTime(block).also { log("[$prefix] DONE in: $it") }
 
 class TimingLogger(
     private val step: Long,
