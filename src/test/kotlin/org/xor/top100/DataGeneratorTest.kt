@@ -21,7 +21,7 @@ internal class DataGeneratorTest {
 
     @ParameterizedTest(name = "random should generate file of correct length: {0}")
     @MethodSource("countData")
-    fun `random should generate file of correct length`(count: LongCount) {
+    fun `random should generate file of correct length`(count: ElementCount) {
         val expectedLength = LONG_SIZE * count
 
         random(valueRange = 1_000, count, dataDir).also { file ->
@@ -31,7 +31,7 @@ internal class DataGeneratorTest {
 
     @ParameterizedTest(name = "fixed should generate file with correct value. length: {0}")
     @MethodSource("countData")
-    fun `fixed should generate file with correct value`(count: LongCount) {
+    fun `fixed should generate file with correct value`(count: ElementCount) {
         val expectedValue = MAX_VALUE
         val expectedLength = LONG_SIZE * count
 

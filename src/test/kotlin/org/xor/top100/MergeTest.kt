@@ -1,6 +1,7 @@
 package org.xor.top100
 
 import org.junit.Assert
+import org.junit.Assert.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -18,15 +19,15 @@ internal class MergeTest {
         )
     }
 
-    @ParameterizedTest(name = "createBuffers should write expected values ({0}, {1}, {2})")
+    @ParameterizedTest(name = "partition should write expected values ({0}, {1}, {2})")
     @MethodSource("chunkData")
-    fun `createBuffers should write expected values`(count: Long, bufferCapacity: LongCount) {
+    fun `partition should write expected values`(count: Long, chunkSize: ElementIntCount) {
         val dataFile = DataGenerator.fixed(1_000, count, DATA_DIR).absolutePath
 
-        val chan = file2channel(dataFile)
-        val buffers = createBuffers(chan, bufferCapacity)
+        val fc = file2channel(dataFile)
+        val buffers = partition(fc, chunkSize)
 
-        buffers.forEach() { buffer ->
+        buffers.forEach { buffer ->
             while (buffer.hasRemaining()) {
                 buffer.put(0L)
             }
@@ -34,32 +35,31 @@ internal class MergeTest {
 
         val actual = mmToArray(dataFile)
         val expected = Array(count.toInt()) { 0L }
-        Assert.assertArrayEquals(expected, actual)
+        assertArrayEquals(expected, actual)
     }
 
     @ParameterizedTest(name = "mergeBuffers should result in sorted output({0}, {1})")
     @MethodSource("chunkData")
-    fun `mergeBuffers should result in sorted output`(count: Long, bufferCapacity: LongCount) {
+    fun `mergeBuffers should result in sorted output`(count: Long, chunkSize: ElementIntCount) {
         val dataFile = DataGenerator.random(1_000, count, DATA_DIR).absolutePath
-        val inChan = file2channel(dataFile)
+        val fc = file2channel(dataFile)
 
-        sortChunks(inChan, bufferCapacity)
-        val buffers = createBuffers(inChan, bufferCapacity)
+        sortChunks(fc, chunkSize)
+        val buffers = partition(fc, chunkSize)
 
         val outFile = "${dataFile}_OUT"
-
         mergeBuffers(buffers, file2Dos(outFile))
 
         Assert.assertTrue(mmIsSorted(outFile))
     }
 
 
-    @ParameterizedTest(name = "sortMerge should sort({0}, {1})")
+    @ParameterizedTest(name = "sortAndMerge should sort({0}, {1})")
     @MethodSource("chunkData")
-    fun `should be sorted after splitSortMerge`(count: Long, bufferCapacity: LongCount) {
+    fun `sortAndMerge`(count: Long, chunkSize: ElementIntCount) {
         val dataFile = DataGenerator.random(1000, count, DATA_DIR).absolutePath
 
-        sortMerge(dataFile, bufferCapacity)
+        sortAndMerge(dataFile, chunkSize)
 
         val list = mmToList("${dataFile}_OUT")
         assertEquals(count, list.size.toLong() , "Unexpected output size")

@@ -20,7 +20,7 @@ fun topN(n: Int, sortedFile: String): Set<Long> {
     }
 
 
-    val tLogger = TimingLogger(step = TEN_MILLION, MILLISECONDS, "[TopN] %d mil. Step in: %d msc.", ONE_MILLION)
+    val tLogger = TimingLogger(step = TEN_MILLION, MILLISECONDS, "[topN] %d mil. Step in: %d msc.", ONE_MILLION)
 
     val dis = file2Dis(sortedFile)
     var value = 0L

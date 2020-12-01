@@ -21,10 +21,10 @@ fun mmForEachValue(filePath: String, block: (Long) -> Unit) {
 }
 
 fun mmIsSorted(filePath: String): Boolean {
-    val fChannel: FileChannel = RandomAccessFile(File(filePath), "r").channel
+    val fc: FileChannel = RandomAccessFile(File(filePath), "rw").channel
 
-    fChannel.use { fc ->
-        val buffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fChannel.size()).asLongBuffer()
+    fc.use { fc ->
+        val buffer = longBuffer(fc, 0, fc.size())
 
         var previuos = Long.MIN_VALUE
 

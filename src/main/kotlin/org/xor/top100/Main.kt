@@ -1,7 +1,5 @@
 package org.xor.top100
 
-import kotlin.time.measureTime
-
 
 const val DATA_DIR = "src/.."
 
@@ -13,7 +11,7 @@ fun oneBillion() {
         } // 7.5G in 33 sec.
 
         recordTiming("sortMerge") {
-            sortMerge("$DATA_DIR/dat_1000000000", bufferCapacity = TEN_MILLION)
+            sortAndMerge("$DATA_DIR/dat_1000000000", chunkSize = TEN_MILLION)
         } // 160 sec
 
         recordTiming("topN") {
@@ -30,7 +28,7 @@ fun fourBillion() {
         } // 30G in 135 sec.
 
         recordTiming("sortMerge") {
-            sortMerge("$DATA_DIR/dat_4000000000", bufferCapacity = TEN_MILLION)
+            sortAndMerge("$DATA_DIR/dat_4000000000", chunkSize = TEN_MILLION)
         } // 25 min.
 
         recordTiming("topN") {
@@ -41,6 +39,6 @@ fun fourBillion() {
 }
 
 fun main() {
-//    oneBillion() // 220 sec
-    fourBillion()
+    oneBillion() // 220 sec
+//    fourBillion()  // 29 min
 }

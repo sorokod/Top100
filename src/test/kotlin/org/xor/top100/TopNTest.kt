@@ -7,12 +7,14 @@ import java.io.File
 import kotlin.test.assertEquals
 
 /**
- *  Generates data of size [size] such that values 0..[frequentValues]-1 have frequency [freq] are the most frequent
+ *  Generates data of size = [size] such that values 0..[frequentValues]-1 have frequency [freq] are the most frequent
  */
 fun generateFrequentData(frequentValues: Long, freq: Int, size: Int): File {
 
     require(freq > 1) { "freq must be > 1" }
-    require(frequentValues * freq <= size) { "Can not generate data of size $size with ${frequentValues * freq} most frequent elements" }
+    require(frequentValues * freq <= size) {
+        "Can not generate data of size $size with ${frequentValues * freq} most frequent elements"
+    }
 
     val dataList = mutableListOf<Long>()
 
@@ -27,9 +29,6 @@ fun generateFrequentData(frequentValues: Long, freq: Int, size: Int): File {
 
     dataList.shuffle()
 
-//    println(dataList.size)
-//    println(dataList)
-//
     var i = 0
     return gen(size.toLong(), DATA_DIR) { dataList[i++] }
 }
@@ -48,14 +47,11 @@ class TopNTest {
 
     @ParameterizedTest(name = "topN should return top N values({0}, {1} {2})")
     @MethodSource("chunkData")
-    fun `topN should return top N values`(frequentValues: Long, size: Int, file: String) {
+    fun `topN should return top N values`(frequentValues: Int, size: Int, file: String) {
 
-        sortMerge(file, bufferCapacity = 10)
+        sortAndMerge(file, chunkSize = 10)
 
-//        val topN = TopN(frequentValues.toInt())
-//        topN.process("${file}_OUT")
-
-        val expected = List(frequentValues.toInt()) { it.toLong() }.toSet()
-        assertEquals(expected, topN(frequentValues.toInt(), "${file}_OUT"))
+        val expected = List(frequentValues) { it.toLong() }.toSet()
+        assertEquals(expected, topN(frequentValues, "${file}_OUT"))
     }
 }
