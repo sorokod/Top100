@@ -19,9 +19,6 @@ const val FOUR_BILLION = 4 * 1_000L * ONE_MILLION
 
 inline fun log(msg: String) = println(msg)
 
-fun file2channel(filePath: String): FileChannel =
-    File(filePath).let { file -> RandomAccessFile(file, "rw").channel }
-
 fun file2Dos(filePath: String) =
     DataOutputStream(BufferedOutputStream(FileOutputStream(filePath), 1024 * 1024))
 

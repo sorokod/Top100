@@ -1,9 +1,6 @@
 package org.xor.top100
 
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
-import java.lang.IllegalArgumentException
 import java.nio.LongBuffer
 import kotlin.random.Random
 
@@ -17,6 +14,6 @@ internal class AlwaysSortedTest {
         val list = mutableListOf<Long>()
         subject.forEach { list.add(it) }
 
-        assertTrue(isSorted(list))
+        assertSorted(list)
     }
 }

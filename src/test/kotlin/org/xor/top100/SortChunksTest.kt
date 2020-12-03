@@ -15,16 +15,16 @@ class SortChunksTest {
         )
     }
 
-
     @ParameterizedTest(name = "sortChunks should result in sorted chunks({0}, {1})")
     @MethodSource("chunkData")
     fun `sortChunks is sorting`(count: ElementCount, chunkSize: ElementIntCount) {
         val dataFile = DataGenerator.random(1_000, count, DATA_DIR).absolutePath
-        val chan = file2channel(dataFile)
 
-        sortChunks(chan, chunkSize)
+        MemoryMapped(dataFile).use { mm ->
+            sortChunks(mm, chunkSize)
 
-        mmToList(dataFile).windowed(chunkSize.toInt(), chunkSize.toInt())
-            .forEach { chunk -> assertSorted(chunk) }
+            mmToList(dataFile).windowed(chunkSize.toInt(), chunkSize.toInt())
+                .forEach { chunk -> assertSorted(chunk) }
+        }
     }
 }
